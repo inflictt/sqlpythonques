@@ -54,13 +54,13 @@ def showtasks():
     cursor = connection.cursor()
 
     if key == 1:
-        query = "SELECT * FROM todos"
+        query = "SELECT * FROM todos ORDER BY date"
     elif key == 2:
-        query = "SELECT * FROM todos WHERE status = 'Completed'"
+        query = "SELECT * FROM todos WHERE status = 'Completed' ORDER BY date "
     elif key == 3:
-        query = "SELECT * FROM todos WHERE status = 'Pending'"
+        query = "SELECT * FROM todos WHERE status = 'Pending' ORDER BY date "
     elif key == 4:
-        query = "SELECT * FROM todos WHERE status = 'Ongoing'"
+        query = "SELECT * FROM todos WHERE status = 'Ongoing' ORDER BY date "
     elif key == 5:
         print("Exiting show table prompt.")
         connection.close()
@@ -84,7 +84,18 @@ def showtasks():
 
 
 
-# showtasks()
+def summary_tasks():
+    connection= connectDB()
+    cursor= connection.cursor()
+    print("Sumarry for your to-do-list below : ")
+    query_sum='SELECT status AS summary, COUNT(*) AS total_tasks FROM todos GROUP BY status;'
+    cursor.execute(query_sum,())
+    tasks = cursor.fetchall()
+    for task in tasks:
+        print(f"Status: {task[0]} | Number of Tasks {task[0]} : {task[1]} |")
+    connection.commit()
+    connection.close()
+
 
 def create_tasks():
     connection= connectDB()
@@ -125,7 +136,6 @@ def update_status():
     up_status=input("enter the task status (Completed/Pending/Ongoing) :")
     query7 = 'UPDATE todos SET status = %s WHERE id = %s'
     cursor.execute(query7, (up_status, task_id))
-    cursor.execute(query7,(up_status,))  
     connection.commit()
     connection.close()
     print(f"status for the Task_id = '{task_id}' has been updated successfully. ")
@@ -177,7 +187,8 @@ def menu():
         print("5. status checker ")
         print("6. update task status ")
         print("7. delete all tasks")
-        print("8. to exit ")
+        print("8. to get summary of tasks ")
+        print("9. to exit ")
         
         operation = input("Enter the operation to perform: ").strip()
         
@@ -195,7 +206,9 @@ def menu():
             update_status()
         elif operation == "7":
             delete_all_tasks()
-        elif operation == "8":
+        elif operation== "8":
+            summary_tasks()
+        elif operation == "9":
             print("Goodbye!!!")
             break
         else:

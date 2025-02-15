@@ -14,7 +14,7 @@ def connectDB():
 #     connection = connectDB()
 #     cursor = connection.cursor()
 #     cursor.execute('''
-#         ALTER TABLE todos ADD COLUMN progress_tracker VARCHAR(30) NOT NULL
+#         ALTER TABLE todos ADD COLUMN status VARCHAR(30) NOT NULL
 #     ''')
 #     connection.commit()
 #     connection.close()
@@ -48,7 +48,7 @@ def showtasks():
         print("\nTo-Do List:")
         print("-" * 40)
         for task in tasks:
-            print(f"ID: {task[0]} | Task: {task[1]} | Due Date: {task[2]} | Task Progress : {task[3]}")
+            print(f"ID: {task[0]} | Task: {task[1]} | Due Date: {task[2]} | Task status : {task[3]}")
         print("-" * 40)
 
     connection.close()
@@ -61,30 +61,31 @@ def create_tasks():
     cursor=connection.cursor()
     task=input("enter the task  :")
     date= input("enter the due date YYYY-MM-DD  : ")
-    progress_tracker=input("enter the task progress :")
-    query = 'INSERT INTO todos (task, date, progress_tracker) VALUES (%s, %s, %s)'
-    cursor.execute(query, (task, date, progress_tracker,))  
+    status=input("enter the task status :")
+    query = 'INSERT INTO todos (task, date, status) VALUES (%s, %s, %s)'
+    cursor.execute(query, (task, date, status,))  
     connection.commit()
     connection.close()
     print(f"Task '{task}'created successfully. ")
 
 # create_tasks()
 
-def progresscheck():
+def check_status():
     connection = connectDB()
     cursor = connection.cursor()
-    task_id = int(input("Enter the task ID to check progress: "))
-    
-    query4 = 'SELECT progress_tracker FROM todos WHERE id = %s'
+    task_id = int(input("Enter the task ID to check status: "))
+
+    query4 = 'SELECT status FROM todos WHERE id = %s'
     cursor.execute(query4, (task_id,))
     result = cursor.fetchone()
 
     if result:
-        print(f"Task ID {task_id} Progress: {result[0]}")
+        print(f"Task ID {task_id} Status: {result[0]}")
     else:
         print("No task found with the given ID.")
 
     connection.close()
+
 
 
 
@@ -138,7 +139,7 @@ def menu():
         print("2. Show Task")
         print("3. Update Task")
         print("4. Delete single Task")
-        print("5. progress checker ")
+        print("5. status checker ")
         print("6. delete all tasks")
         print("7. to exit ")
         
@@ -153,7 +154,7 @@ def menu():
         elif operation == "4":
             deletetask()
         elif operation == "5":
-            progresscheck()
+            check_status()
         elif operation == "6":
             delete_all_tasks()
         elif operation == "7":

@@ -88,11 +88,11 @@ def summary_tasks():
     connection= connectDB()
     cursor= connection.cursor()
     print("Sumarry for your to-do-list below : ")
-    query_sum='SELECT status AS summary, COUNT(*) AS total_tasks FROM todos GROUP BY status;'
-    cursor.execute(query_sum,())
+    query_sum='SELECT status AS summary, GROUP_CONCAT(task SEPARATOR ', ') AS task_details, COUNT(*) AS total_tasks FROM todos GROUP BY status;'
+    cursor.execute(query_sum,)
     tasks = cursor.fetchall()
     for task in tasks:
-        print(f"Status: {task[0]} | Number of Tasks {task[0]} : {task[1]} |")
+        print(f"Status: {task[0]} | Total Tasks: {task[2]} | Tasks: {task[1]}")
     connection.commit()
     connection.close()
 

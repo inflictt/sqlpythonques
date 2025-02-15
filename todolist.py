@@ -37,21 +37,51 @@ def connectDB():
 # initDB()
 
 def showtasks():
+    print("\nSelect an option:")
+    print("1. View Full Table")
+    print("2. View Completed Tasks")
+    print("3. View Pending Tasks")
+    print("4. View Ongoing Tasks")
+    print("5. Exit")
+
+    try:
+        key = int(input("Enter your choice (1-5): "))
+    except ValueError:
+        print("Invalid input! Please enter a number between 1 and 5.")
+        return
+
     connection = connectDB()
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM todos")
-    tasks = cursor.fetchall()
 
+    if key == 1:
+        query = "SELECT * FROM todos"
+    elif key == 2:
+        query = "SELECT * FROM todos WHERE status = 'Completed'"
+    elif key == 3:
+        query = "SELECT * FROM todos WHERE status = 'Pending'"
+    elif key == 4:
+        query = "SELECT * FROM todos WHERE status = 'Ongoing'"
+    elif key == 5:
+        print("Exiting show table prompt.")
+        connection.close()
+        return
+    else:
+        print("Invalid choice! Please enter a valid number (1-5).")
+        connection.close()
+        return
+    cursor.execute(query)
+    tasks = cursor.fetchall()
     if not tasks:
         print("YOUR TO-DO LIST IS EMPTY")
     else:
         print("\nTo-Do List:")
-        print("-" * 40)
+        print("-" * 50)
         for task in tasks:
-            print(f"ID: {task[0]} | Task: {task[1]} | Due Date: {task[2]} | Task status : {task[3]}")
-        print("-" * 40)
+            print(f"ID: {task[0]} | Task: {task[1]} | Due Date: {task[2]} | Status: {task[3]}")
+        print("-" * 50)
 
     connection.close()
+
 
 
 # showtasks()
@@ -61,9 +91,9 @@ def create_tasks():
     cursor=connection.cursor()
     task=input("enter the task  :")
     date= input("enter the due date YYYY-MM-DD  : ")
-    status=input("enter the task status :")
-    query = 'INSERT INTO todos (task, date, status) VALUES (%s, %s, %s)'
-    cursor.execute(query, (task, date, status,))  
+    # status=input("enter the task status :")
+    query = 'INSERT INTO todos (task, date) VALUES (%s, %s)'
+    cursor.execute(query, (task, date,))  
     connection.commit()
     connection.close()
     print(f"Task '{task}'created successfully. ")
@@ -85,6 +115,18 @@ def check_status():
         print("No task found with the given ID.")
 
     connection.close()
+
+
+def update_status():
+    connection = connectDB()
+    cursor = connection.cursor()
+    task_id = int(input("Enter the task ID to update status: "))
+    up_status=input("enter the task status (Completed/Pending/Ongoing) :")
+    query7 = 'INSERT INTO todos (status) VALUES (%s)'
+    cursor.execute(query7,(up_status,))  
+    connection.commit()
+    connection.close()
+    print(f"status for the Task_id = '{task_id}' has been updated successfully. ")
 
 
 
@@ -123,25 +165,17 @@ def update_tasks_by_id():
     connection.close()
     print(f"Task ID {task_id} updated successfully.")
 
-    
-    # if not tasks:
-    #     print("YOUR TO DO LIST IS EMPTY")
-    # else:
-    #     for index,task in enumerate(tasks):
-    #         print(task)
-
-# update_tasks_by_id()
-
 def menu():
     while True:
         print("\nSelect an operation to perform:")
         print("1. Create Task")
         print("2. Show Task")
-        print("3. Update Task")
+        print("3. update Task details ")
         print("4. Delete single Task")
         print("5. status checker ")
-        print("6. delete all tasks")
-        print("7. to exit ")
+        print("6. update task status ")
+        print("7. delete all tasks")
+        print("8. to exit ")
         
         operation = input("Enter the operation to perform: ").strip()
         
@@ -156,8 +190,10 @@ def menu():
         elif operation == "5":
             check_status()
         elif operation == "6":
-            delete_all_tasks()
+            update_status()
         elif operation == "7":
+            delete_all_tasks()
+        elif operation == "8":
             print("Goodbye!!!")
             break
         else:

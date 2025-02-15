@@ -92,8 +92,9 @@ def create_tasks():
     task=input("enter the task  :")
     date= input("enter the due date YYYY-MM-DD  : ")
     # status=input("enter the task status :")
-    query = 'INSERT INTO todos (task, date) VALUES (%s, %s)'
-    cursor.execute(query, (task, date,))  
+    query = 'INSERT INTO todos (task, date, status) VALUES (%s, %s, %s)'
+    cursor.execute(query, (task, date, 'Pending'))
+  
     connection.commit()
     connection.close()
     print(f"Task '{task}'created successfully. ")
@@ -108,11 +109,11 @@ def check_status():
     query4 = 'SELECT status FROM todos WHERE id = %s'
     cursor.execute(query4, (task_id,))
     result = cursor.fetchone()
-
-    if result:
-        print(f"Task ID {task_id} Status: {result[0]}")
-    else:
-        print("No task found with the given ID.")
+    try:
+        task_id = int(input("Enter the task ID to check status: "))
+    except ValueError:
+        print("Invalid input! Please enter a numeric task ID.")
+        return
 
     connection.close()
 
@@ -122,7 +123,8 @@ def update_status():
     cursor = connection.cursor()
     task_id = int(input("Enter the task ID to update status: "))
     up_status=input("enter the task status (Completed/Pending/Ongoing) :")
-    query7 = 'INSERT INTO todos (status) VALUES (%s)'
+    query7 = 'UPDATE todos SET status = %s WHERE id = %s'
+    cursor.execute(query7, (up_status, task_id))
     cursor.execute(query7,(up_status,))  
     connection.commit()
     connection.close()

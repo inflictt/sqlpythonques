@@ -36,13 +36,17 @@ def connectDB():
 
 # initDB()
 
+
+
+
+
 def showtasks():
     print("\nSelect an option:")
     print("1. View Full Table")
     print("2. View Completed Tasks")
     print("3. View Pending Tasks")
     print("4. View Ongoing Tasks")
-    print("5. Exit")
+    print("6. Exit")
 
     try:
         key = int(input("Enter your choice (1-5): "))
@@ -61,7 +65,8 @@ def showtasks():
         query = "SELECT * FROM todos WHERE status = 'Pending' ORDER BY date "
     elif key == 4:
         query = "SELECT * FROM todos WHERE status = 'Ongoing' ORDER BY date "
-    elif key == 5:
+ 
+    elif key == 6:
         print("Exiting show table prompt.")
         connection.close()
         return
@@ -94,7 +99,22 @@ def summary_tasks():
     tasks = cursor.fetchall()
     
     for task in tasks:
-        print(f"Status: {task[0]} | Total Tasks: {task[1]} | ")
+        print(f"Status: {task[0]} | Total Tasks: {task[1]} ")
+        status=task[0]
+        query_details = 'SELECT id, task, date FROM todos WHERE status = %s;'
+        cursor.execute(query_details, (status,))
+        task_details = cursor.fetchall()
+        
+        if task_details:
+                print("  Task Details:")
+                for detail in task_details:
+                    task_id = detail[0]
+                    task_name = detail[1]
+                    due_date = detail[2]
+                    print(f"- Task ID: {task_id} | Name: {task_name} | Due Date: {due_date}")
+                print("\n")
+                
+        
     connection.commit()
     connection.close()
 
@@ -108,13 +128,14 @@ def create_tasks():
     cursor=connection.cursor()
     task=input("enter the task  :")
     date= input("enter the due date YYYY-MM-DD  : ")
+    print("Recurrence Options: None, Daily, Weekly, Monthly")
+    recurrence= input("enter recurrence typee  :")
     # status=input("enter the task status :")
-    query = 'INSERT INTO todos (task, date, status) VALUES (%s, %s, %s)'
-    cursor.execute(query, (task, date, 'Pending'))
-  
+    query = 'INSERT INTO todos (task, date, status, recurrence) VALUES (%s, %s, %s, %s)'
+    cursor.execute(query, (task, date, 'Pending', recurrence))
     connection.commit()
     connection.close()
-    print(f"Task '{task}'created successfully. ")
+    print(f"Task '{task}' created successfully with recurrence: {recurrence}.")
 
 # create_tasks()
 
@@ -215,7 +236,7 @@ def menu():
         elif operation== "8":
             summary_tasks()
         elif operation == "9":
-            print("Goodbye!!!")
+            print("Goodbye!!!") 
             break
         else:
             print("Invalid input. Please try again!")

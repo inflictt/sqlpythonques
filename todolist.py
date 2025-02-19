@@ -1,6 +1,8 @@
 import os 
 import mysql.connector
 from dotenv import load_dotenv, dotenv_values 
+from datetime import datetime, timedelta
+
 
 load_dotenv()
 passs = os.getenv("my_sql_key")
@@ -36,9 +38,34 @@ def connectDB():
 
 # initDB()
 
+def show_Reccurring_tasks():
+    connection=connectDB()
+    cursor = connection.cursor()
+    today=datetime.today().date()
+    print(f"\nChecking for recurring tasks on {today}...")
+    query = "SELECT id, task, date, recurrence FROM todos WHERE status = 'Pending' AND recurrence != 'None'"
+    cursor.execute(query)
+    tasks = cursor.fetchall()
+    print("\nRecurring Pending Tasks for Today:")
+    print("-" * 50)
 
+    for task in tasks:
+        task_id, task_name, due_date, recurrence = task
+    if not tasks:
+        print("No pending recurring tasks for today.")
+        connection.close()
+        return
+    
+    if recurrence == "Daily":
+        notify_user(task_id, task_name, recurrence)
+    elif recurrence == "Weekly":
+        notify_user(task_id, task_name, recurrence)
+    elif recurrence == "Monthly":
+        if today.day == due_date.day:
+            notify_user(task_id, task_name, recurrence)
 
-
+def notify_user(task_id, task_name, recurrence):
+    print(f"Task ID: {task_id} | Task: {task_name} | Recurrence: {recurrence}")
 
 def showtasks():
     print("\nSelect an option:")
@@ -65,7 +92,6 @@ def showtasks():
         query = "SELECT * FROM todos WHERE status = 'Pending' ORDER BY date "
     elif key == 4:
         query = "SELECT * FROM todos WHERE status = 'Ongoing' ORDER BY date "
- 
     elif key == 6:
         print("Exiting show table prompt.")
         connection.close()
@@ -207,6 +233,7 @@ def update_tasks_by_id():
 def menu():
     while True:
         print("\nSelect an operation to perform:")
+        print("0. show recurring tasks list")
         print("1. Create Task")
         print("2. Show Task")
         print("3. update Task details ")
@@ -235,6 +262,8 @@ def menu():
             delete_all_tasks()
         elif operation== "8":
             summary_tasks()
+        elif operation == "0":
+            show_Reccurring_tasks()
         elif operation == "9":
             print("Goodbye!!!") 
             break
